@@ -1,0 +1,33 @@
+# Requisitos para o Sistema de Classificação de Vegetação da Caatinga
+# Análise hiperespectral de satélites PRISMA, EnMAP e EMIT
+
+# Core scientific computing
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+
+# Machine learning and data analysis
+scikit-learn>=1.0.0
+scikit-image>=0.18.0
+
+# Geospatial and remote sensing
+rasterio>=1.2.0
+spectral>=0.22.0
+
+# Data formats
+h5py>=3.1.0  # For PRISMA HDF5 files
+
+# Visualization
+matplotlib>=3.4.0
+seaborn>=0.11.0
+
+# Optional but recommended
+jupyter>=1.0.0
+jupyterlab>=3.0.0
+notebook>=6.4.0
+
+# For Google Earth Engine integration (optional)
+earthengine-api>=0.1.300
+
+# Additional utilities
+tqdm>=4.60.0  # Progress bars
