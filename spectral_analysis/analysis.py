@@ -13,19 +13,18 @@ from sklearn.preprocessing import StandardScaler
 from itertools import combinations
 from sklearn.ensemble import RandomForestClassifier
 
-def plot_intra_class_variability(reflectance_data, class_name, output_folder):
+def plot_intra_class_variability(reflectance_data, class_name, wavelengths, output_folder):
     """
     Plota a variabilidade espectral média e o desvio padrão para uma única classe.
     """
     mean_signature = reflectance_data.mean(axis=0)
     std_signature = reflectance_data.std(axis=0)
-    wavelengths = np.arange(1, reflectance_data.shape[1] + 1)
 
     plt.figure(figsize=(14, 8))
     plt.plot(wavelengths, mean_signature, color='blue', linewidth=2, label='Média')
     plt.fill_between(wavelengths, mean_signature - std_signature, mean_signature + std_signature, color='blue', alpha=0.2, label='Desvio Padrão')
     plt.title(f'Variabilidade Espectral Intra-Classe: {class_name}', fontsize=16)
-    plt.xlabel('Banda Espectral', fontsize=12)
+    plt.xlabel('Comprimento de Onda (nm)', fontsize=12)
     plt.ylabel('Reflectância', fontsize=12)
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.6)
@@ -104,15 +103,11 @@ def analyze_intra_class_normality(data, class_name, output_folder):
     plt.savefig(os.path.join(output_folder, f"distribuicao_normalidade_{class_name}.png"))
     plt.show()
 
-def plot_mean_spectra(X, y, output_folder):
+def plot_mean_spectra(X, y, wavelengths, output_folder):
     """
     Plota as assinaturas espectrais médias por classe de forma interativa.
     """
     mean_spectra = X.groupby(y).mean()
-    try:
-        wavelengths = [int(col.split('_')[-1]) for col in X.columns]
-    except (ValueError, IndexError):
-        wavelengths = list(range(len(X.columns)))
 
     fig = go.Figure()
     for class_name, row in mean_spectra.iterrows():
@@ -120,7 +115,7 @@ def plot_mean_spectra(X, y, output_folder):
 
     fig.update_layout(
         title='Assinaturas Espectrais Médias por Classe',
-        xaxis_title='Banda Espectral / Comprimento de Onda (nm)',
+        xaxis_title='Comprimento de Onda (nm)',
         yaxis_title='Reflectância',
         legend_title='Classes',
         hovermode='x unified'
@@ -184,7 +179,7 @@ def calculate_separability_matrix(X, y, output_folder, n_components=15):
     plt.show()
     return distance_matrix
 
-def get_feature_importance(X, y, output_folder):
+def get_feature_importance(X, y, wavelengths, output_folder):
     """
     Treina um RandomForest para extrair a importância das bandas espectrais.
     """
@@ -194,20 +189,26 @@ def get_feature_importance(X, y, output_folder):
     rf.fit(X_scaled, y)
 
     feature_importance = pd.DataFrame({
-        'banda': X.columns,
-        'importancia': rf.feature_importances_
-    }).sort_values('importancia', ascending=False)
+        'wavelength': wavelengths,
+        'importance': rf.feature_importances_
+    }).sort_values('importance', ascending=False)
 
     print("As 15 bandas mais importantes:")
     print(feature_importance.head(15).to_markdown(index=False))
 
     plt.figure(figsize=(18, 7))
-    sns.barplot(x='banda', y='importancia', data=feature_importance, color='dodgerblue')
+    sns.barplot(x='wavelength', y='importance', data=feature_importance, color='dodgerblue')
     plt.title('Importância de Cada Banda Espectral para a Classificação (Random Forest)', fontsize=16)
     plt.ylabel('Importância (Gini Importance)', fontsize=12)
-    plt.xlabel('Banda Espectral', fontsize=12)
+    plt.xlabel('Comprimento de Onda (nm)', fontsize=12)
     plt.xticks(rotation=90, fontsize=8)
-    plt.gca().set_xticks(plt.gca().get_xticks()[::5])
+
+    # Ajusta os ticks do eixo x para evitar sobreposição
+    tick_positions = np.arange(0, len(wavelengths), step=max(1, len(wavelengths) // 20))
+    tick_labels = [f"{wavelengths[i]:.1f}" for i in tick_positions]
+    plt.gca().set_xticks(tick_positions)
+    plt.gca().set_xticklabels(tick_labels)
+
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, "feature_importance.png"))
     plt.show()
