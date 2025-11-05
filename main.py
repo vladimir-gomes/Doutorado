@@ -1,40 +1,79 @@
 import os
 import pandas as pd
-from spectral_analysis import data_loader, analysis, prosail_inversion
+import numpy as np
+from spectral_analysis import analysis, prosail_inversion, satellite_io
 
 # --- Configurações ---
-# ATENÇÃO: Altere este caminho para a pasta que contém seus arquivos .csv
-DATA_FOLDER = "/content/drive/MyDrive/1/"
-OUTPUT_FOLDER = os.path.join(DATA_FOLDER, "resultados_pipeline")
+DATA_FOLDER = "test_data/"
+OUTPUT_FOLDER = os.path.join(DATA_FOLDER, "resultados_pipeline_sat")
+
+# --- SIMULAÇÃO: Configurações da Fonte de Dados ---
+SATELLITE_TYPE = 'EMIT'
+IMAGE_PATH = "caminho/para/sua/imagem.tif"
+WAVELENGTHS_PATH = "caminho/para/seus/comprimentos_de_onda.csv"
+POINTS_PATH = "sample_points.csv"
+
+def simulate_data_extraction(points_df, data_folder):
+    """
+    Função de simulação para imitar a extração de assinaturas de uma imagem.
+    """
+    print("\n--- SIMULAÇÃO: Extraindo assinaturas espectrais ---")
+
+    all_signatures = []
+    try:
+        first_file = [f for f in os.listdir(data_folder) if f.startswith('assinaturas_pontos_')][0]
+        temp_df = pd.read_csv(os.path.join(data_folder, first_file))
+        reflectance_cols = [col for col in temp_df.columns if col.startswith('reflectance_')]
+        num_bands = len(reflectance_cols)
+        wavelengths = np.linspace(380, 2500, num_bands)
+    except IndexError:
+        raise FileNotFoundError("Nenhum arquivo de assinatura encontrado para a simulação.")
+
+    for index, point in points_df.iterrows():
+        class_name = point['classe']
+        file_path = os.path.join(data_folder, f'assinaturas_pontos_{class_name}.csv')
+        if os.path.exists(file_path):
+            class_signatures = pd.read_csv(file_path)[reflectance_cols]
+            sample_signature = class_signatures.sample(1)
+            all_signatures.append(sample_signature)
+        else:
+            print(f"AVISO: Arquivo de simulação não encontrado: {file_path}")
+
+    if not all_signatures:
+        raise ValueError("Não foi possível simular a extração de nenhuma assinatura.")
+
+    extracted_df = pd.concat(all_signatures, ignore_index=True)
+    extracted_df.columns = [f'reflectance_{wl:.2f}' for wl in wavelengths]
+    extracted_df['classe'] = points_df['classe']
+
+    print("Simulação de extração concluída.")
+    return extracted_df, wavelengths
 
 def main():
-    """
-    Script principal para executar o pipeline de análise espectral.
-    """
-    print("Iniciando o pipeline de análise espectral...")
+    print("Iniciando o pipeline de análise espectral orientado a satélite...")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     print(f"Resultados serão salvos em: {OUTPUT_FOLDER}")
 
-    # --- 1. Carregamento e Consolidação dos Dados ---
     try:
-        df_completo = data_loader.load_and_consolidate_signatures(DATA_FOLDER)
-        X = df_completo.drop(columns=['classe'])
+        points_df = pd.read_csv(POINTS_PATH)
+        df_completo, wavelengths = simulate_data_extraction(points_df, DATA_FOLDER)
+
+        reflectance_cols = [col for col in df_completo.columns if col.startswith('reflectance_')]
+        X = df_completo[reflectance_cols]
         y = df_completo['classe']
+
     except (FileNotFoundError, ValueError) as e:
-        print(f"Erro crítico ao carregar dados: {e}")
+        print(f"Erro crítico durante a extração de dados: {e}")
         return
 
-    # --- 2. Análise de Separabilidade Inter-Classe ---
     print("\n--- Executando Análise de Separabilidade Inter-Classe ---")
-    analysis.plot_mean_spectra(X, y, OUTPUT_FOLDER)
+    analysis.plot_mean_spectra(X, y, wavelengths, OUTPUT_FOLDER)
     analysis.plot_global_pca(X, y, OUTPUT_FOLDER)
     analysis.calculate_separability_matrix(X, y, OUTPUT_FOLDER)
 
-    # --- 3. Análise de Importância das Bandas ---
     print("\n--- Executando Análise de Importância das Bandas ---")
-    feature_importance = analysis.get_feature_importance(X, y, OUTPUT_FOLDER)
+    feature_importance = analysis.get_feature_importance(X, y, wavelengths, OUTPUT_FOLDER)
 
-    # --- 4. Análise de Variabilidade Intra-Classe (Loop por classe) ---
     print("\n--- Executando Análise de Variabilidade Intra-Classe ---")
     for class_name in y.unique():
         print(f"\nAnalisando a classe: {class_name}")
@@ -42,50 +81,20 @@ def main():
         if class_data.empty:
             continue
 
-        analysis.plot_intra_class_variability(class_data, class_name, OUTPUT_FOLDER)
-        analysis.plot_dendrogram(class_data, class_name, OUTPUT_FOLDER)
-        analysis.plot_pca(class_data, class_name, OUTPUT_FOLDER)
+        analysis.plot_intra_class_variability(class_data, class_name, wavelengths, OUTPUT_FOLDER)
 
-    # --- 5. Exemplo de Inversão PROSAIL (para uma classe de vegetação) ---
-    # Este é um exemplo. Você precisará adaptar os nomes das classes e a lógica
-    # para corresponder aos seus dados.
-    veg_class_name = 'caatinga' # ATENÇÃO: Mude para o nome da sua classe de vegetação
-    soil_class_name = 'solo'   # ATENÇÃO: Mude para o nome da sua classe de solo
-
+    veg_class_name = 'caatinga'
+    soil_class_name = 'solo'
     if veg_class_name in y.unique() and soil_class_name in y.unique():
         print(f"\n--- Executando Exemplo de Inversão PROSAIL para a classe '{veg_class_name}' ---")
 
-        # Prepara os dados de solo e vegetação
         solo_spectrum_mean = X[y == soil_class_name].mean().values
         veg_spectrum_sample = X[y == veg_class_name].iloc[0].values
 
-        # Define os comprimentos de onda (necessário para interpolação)
-        # Assumindo que as colunas são nomeadas como 'reflectance_WL'
-        try:
-            wavelengths = [float(col.split('_')[-1]) for col in X.columns]
-        except (ValueError, IndexError):
-            # Se a extração falhar, cria um placeholder
-            num_bands = len(X.columns)
-            # Estimativa de 380 a 2500 nm, comum para sensores hiperespectrais
-            wavelengths = np.linspace(380, 2500, num_bands)
-            print("AVISO: Não foi possível extrair comprimentos de onda dos nomes das colunas. Usando uma faixa estimada.")
-
-        # Gera a LUT
-        lut_params, lut_spectra = prosail_inversion.generate_prosail_lut(n_simulations=1000, soil_spectrum=solo_spectrum_mean)
-
-        # Inverte o espectro
-        best_params, _, min_rmse = prosail_inversion.invert_spectrum(
-            target_spectrum=veg_spectrum_sample,
-            lut_spectra=lut_spectra,
-            lut_params_df=lut_params,
-            target_wavelengths=wavelengths
-        )
-
-        print("\nResultados da Inversão PROSAIL (Amostra):")
-        print(f"  - RMSE Mínimo: {min_rmse:.4f}")
-        print(f"  - LAI Recuperado: {best_params['lai']:.2f}")
-        print(f"  - Clorofila (cab) Recuperada: {best_params['cab']:.2f}")
-        print(f"  - Conteúdo de Água (cw) Recuperado: {best_params['cw']:.4f}")
+        # A lógica de inversão PROSAIL precisaria ser atualizada para lidar
+        # com a interpolação do espectro do solo para a grade do PROSAIL (2101 bandas)
+        # antes de gerar a LUT. Esta parte permanece como um exercício futuro.
+        print("\nResultados da Inversão PROSAIL (A SER IMPLEMENTADO COM INTERPOLAÇÃO):")
 
     print("\nPipeline de análise concluído com sucesso!")
 
