@@ -16,6 +16,7 @@ O núcleo do projeto está no diretório `spectral_analysis/`, que está estrutu
     -   `analysis.py`: Contém funções para análises estatísticas, tanto intra-classe (variabilidade, agrupamento) quanto inter-classe (separabilidade, PCA, importância de características).
     -   `prosail_inversion.py`: Funções para realizar a inversão do modelo de transferência radiativa PROSAIL usando uma abordagem de Look-Up Table (LUT).
     -   `pinn_inversion.py`: Contém a estrutura para uma abordagem mais avançada de inversão usando Redes Neurais Informadas pela Física (PINNs).
+    -   `autoencoder.py`: Implementa um autoencoder com restrições físicas para extração de endmembers e abundâncias de assinaturas espectrais. Usa Spectral Angle Divergence (SAD) como função de perda e impõe restrições de não-negatividade e soma unitária.
 -   `main.py`: O script principal que serve como ponto de entrada para executar o pipeline de análise completo. Ele demonstra como usar os módulos da biblioteca `spectral_analysis` em sequência.
 -   `generate_test_data.py`: Um script utilitário para gerar dados sintéticos para testes. Isso é útil para verificar o pipeline sem a necessidade de dados de satélite reais.
 -   `test_data/`: Um diretório contendo os dados de teste gerados pelo `generate_test_data.py`.
@@ -27,7 +28,7 @@ O núcleo do projeto está no diretório `spectral_analysis/`, que está estrutu
 O projeto requer várias bibliotecas Python. Você pode instalá-las usando `pip`. É crucial que você garanta que todas as dependências estejam instaladas antes de executar qualquer script.
 
 ```bash
-pip install pandas numpy matplotlib seaborn scipy scikit-learn plotly rasterio prosail tabulate
+pip install pandas numpy matplotlib seaborn scipy scikit-learn plotly rasterio prosail tabulate tensorflow
 ```
 
 ### 2. Executando o Pipeline
@@ -61,3 +62,7 @@ O script `main.py` irá:
     1.  Abra `spectral_analysis/analysis.py`.
     2.  Modifique ou adicione funções de análise conforme necessário.
     3.  Atualize o `main.py` para chamar suas novas funções.
+-   **Usar o Autoencoder para Extração de Endmembers:**
+    1.  Use `spectral_analysis/autoencoder.py` para criar e treinar um autoencoder.
+    2.  Execute `python enmap_autoencoder_example.py` para ver um exemplo completo.
+    3.  Os endmembers e abundâncias serão extraídos automaticamente com restrições físicas (não-negatividade e soma unitária).
