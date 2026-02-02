@@ -9,6 +9,7 @@ scipy>=1.7.0
 # Machine learning and data analysis
 scikit-learn>=1.0.0
 scikit-image>=0.18.0
+tensorflow>=2.20.0  # For autoencoder-based endmember extraction
 
 # Geospatial and remote sensing
 rasterio>=1.2.0

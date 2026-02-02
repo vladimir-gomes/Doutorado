@@ -1,2 +1,16 @@
 # Google App Engine generated folder
 appengine-generated/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Keras/TensorFlow models
+*.keras
+*.h5
+
+# Test outputs
+test_data/autoencoder_results/*.png
+test_data/autoencoder_results/*.keras
