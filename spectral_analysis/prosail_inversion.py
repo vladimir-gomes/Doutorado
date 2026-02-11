@@ -33,21 +33,26 @@ from sklearn.metrics import mean_squared_error
 #   'psoil'   : Soil moisture parameter
 # ============================================================================
 
-def generate_prosail_lut(n_simulations, soil_spectrum):
+def generate_prosail_lut(n_simulations, soil_spectrum, 
+                         tts=30.0, tto=0.0, psi=0.0):
     """
     Gera uma Look-Up Table (LUT) de espectros simulados usando o PROSAIL.
     
     Args:
         n_simulations (int): Número de simulações a serem geradas
         soil_spectrum (array): Espectro de reflectância do solo
+        tts (float, optional): Solar zenith angle (degrees). Default: 30.0
+        tto (float, optional): Observer zenith angle (degrees). Default: 0.0
+        psi (float, optional): Relative azimuth angle (degrees). Default: 0.0
         
     Returns:
         tuple: (DataFrame com parâmetros, array com espectros simulados)
         
     Note:
-        Os parâmetros são amostrados aleatoriamente dentro de faixas físicas
-        válidas para vegetação. Veja a documentação de parâmetros acima para
-        detalhes sobre cada variável.
+        Os parâmetros biofísicos são amostrados aleatoriamente dentro de faixas
+        físicas válidas para vegetação. Os ângulos de observação podem ser
+        especificados para simular diferentes condições de iluminação e visada.
+        Veja a documentação de parâmetros acima para detalhes sobre cada variável.
     """
     print(f"Gerando uma LUT com {n_simulations} simulações...")
     lut_params = []
@@ -68,9 +73,9 @@ def generate_prosail_lut(n_simulations, soil_spectrum):
             'lai': np.random.uniform(0.1, 7.0),        # Leaf Area Index
             'lidfa': np.random.uniform(30., 80.),      # Leaf angle distribution (°)
             'hspot': np.random.uniform(0.01, 0.5),     # Hot spot parameter
-            'tts': 30.,                                 # Solar zenith angle (°)
-            'tto': 0.,                                  # Observer zenith angle (°)
-            'psi': 0.,                                  # Relative azimuth angle (°)
+            'tts': tts,                                 # Solar zenith angle (°)
+            'tto': tto,                                 # Observer zenith angle (°)
+            'psi': psi,                                 # Relative azimuth angle (°)
             'soil_spectrum1': soil_spectrum,            # Soil reflectance spectrum
             'rsoil': 1.0,                               # Soil brightness
             'psoil': 0.0                                # Soil moisture

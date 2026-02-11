@@ -17,8 +17,11 @@ def demonstrate_parameter_descriptions():
     print("DEMONSTRAÇÃO: Descrições dos Parâmetros PROSAIL")
     print("="*70 + "\n")
     
-    # Importar as descrições (simuladas aqui para demonstração)
-    # Em uso real: from spectral_analysis.prosail_inversion import get_parameter_descriptions
+    # Nota: Em produção, você importaria diretamente do módulo:
+    # from spectral_analysis.prosail_inversion import get_parameter_descriptions
+    # descriptions = get_parameter_descriptions()
+    
+    # Para este exemplo, definimos localmente para evitar dependências de instalação
     descriptions = {
         'n': 'Leaf structure parameter (refraction index)',
         'cab': 'Chlorophyll a+b content (μg/cm²)',
@@ -41,6 +44,9 @@ def demonstrate_parameter_descriptions():
         print(f"  {param:12s} - {desc}")
     
     print("\nAgora você pode entender facilmente o que cada parâmetro significa!")
+    print("\nEm código real:")
+    print("  from spectral_analysis.prosail_inversion import get_parameter_descriptions")
+    print("  descriptions = get_parameter_descriptions()")
 
 
 def demonstrate_results_printing():
@@ -69,7 +75,11 @@ def demonstrate_results_printing():
     
     rmse = 0.0423
     
-    # Função simulada (em uso real importar de prosail_inversion)
+    # Nota: Em produção, use a função importada diretamente:
+    # from spectral_analysis.prosail_inversion import print_inversion_results
+    # print_inversion_results(inverted_params, rmse)
+    
+    # Para este exemplo, implementamos localmente para demonstração
     descriptions = {
         'n': 'Leaf structure parameter (refraction index)',
         'cab': 'Chlorophyll a+b content (μg/cm²)',
