@@ -14,7 +14,7 @@ O núcleo do projeto está no diretório `spectral_analysis/`, que está estrutu
     -   `data_loader.py`: (Legado) Funções para carregar dados de assinaturas espectrais de arquivos CSV.
     -   `satellite_io.py`: A abordagem preferida para a E/S de dados. Inclui classes e funções para ler dados diretamente de imagens de satélite (ex: GeoTIFFs) e extrair assinaturas espectrais a partir de coordenadas. Ele é projetado para ser estendido para diferentes sensores como EMIT, EnMAP e PRISMA.
     -   `analysis.py`: Contém funções para análises estatísticas, tanto intra-classe (variabilidade, agrupamento) quanto inter-classe (separabilidade, PCA, importância de características).
-    -   `prosail_inversion.py`: Funções para realizar a inversão do modelo de transferência radiativa PROSAIL usando uma abordagem de Look-Up Table (LUT).
+    -   `prosail_inversion.py`: Funções para realizar a inversão do modelo de transferência radiativa PROSAIL usando uma abordagem de Look-Up Table (LUT). Inclui documentação completa dos parâmetros do modelo (n, cab, car, lai, etc.) e funções auxiliares para visualizar resultados de forma legível.
     -   `pinn_inversion.py`: Contém a estrutura para uma abordagem mais avançada de inversão usando Redes Neurais Informadas pela Física (PINNs).
 -   `main.py`: O script principal que serve como ponto de entrada para executar o pipeline de análise completo. Ele demonstra como usar os módulos da biblioteca `spectral_analysis` em sequência.
 -   `generate_test_data.py`: Um script utilitário para gerar dados sintéticos para testes. Isso é útil para verificar o pipeline sem a necessidade de dados de satélite reais.
@@ -52,6 +52,11 @@ O script `main.py` irá:
 
 ## Tarefas Comuns
 
+-   **Trabalhar com Inversão PROSAIL:**
+    1.  O módulo `prosail_inversion.py` contém parâmetros do modelo com nomes abreviados (ex: 'cab', 'lai', 'cw').
+    2.  Use `get_parameter_descriptions()` para obter descrições legíveis de cada parâmetro.
+    3.  Use `print_inversion_results()` para exibir resultados de inversão de forma formatada.
+    4.  Consulte a documentação no cabeçalho do arquivo para detalhes completos sobre cada parâmetro.
 -   **Adicionar Suporte para um Novo Sensor:**
     1.  Vá para `spectral_analysis/satellite_io.py`.
     2.  Crie uma nova função `load_<sensor_name>_image()`.
