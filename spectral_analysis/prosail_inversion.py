@@ -64,21 +64,21 @@ def generate_prosail_lut(n_simulations, soil_spectrum,
         # Dictionary mapping PROSAIL parameter names to random values
         # within physically valid ranges for vegetation
         params = {
-            'n': np.random.uniform(1.0, 2.5),          # Leaf structure parameter
-            'cab': np.random.uniform(10., 80.),        # Chlorophyll a+b (μg/cm²)
-            'car': np.random.uniform(5., 25.),         # Carotenoids (μg/cm²)
-            'cbrown': np.random.uniform(0.0, 1.0),     # Brown pigments
-            'cw': np.random.uniform(0.005, 0.06),      # Water thickness (cm)
-            'cm': np.random.uniform(0.002, 0.02),      # Dry matter (g/cm²)
-            'lai': np.random.uniform(0.1, 7.0),        # Leaf Area Index
-            'lidfa': np.random.uniform(30., 80.),      # Leaf angle distribution (°)
-            'hspot': np.random.uniform(0.01, 0.5),     # Hot spot parameter
-            'tts': tts,                                 # Solar zenith angle (°)
-            'tto': tto,                                 # Observer zenith angle (°)
-            'psi': psi,                                 # Relative azimuth angle (°)
-            'soil_spectrum1': soil_spectrum,            # Soil reflectance spectrum
-            'rsoil': 1.0,                               # Soil brightness
-            'psoil': 0.0                                # Soil moisture
+            'n': np.random.uniform(1.0, 2.5),       # Leaf structure parameter
+            'cab': np.random.uniform(10., 80.),     # Chlorophyll a+b (μg/cm²)
+            'car': np.random.uniform(5., 25.),      # Carotenoids (μg/cm²)
+            'cbrown': np.random.uniform(0.0, 1.0),  # Brown pigments
+            'cw': np.random.uniform(0.005, 0.06),   # Water thickness (cm)
+            'cm': np.random.uniform(0.002, 0.02),   # Dry matter (g/cm²)
+            'lai': np.random.uniform(0.1, 7.0),     # Leaf Area Index
+            'lidfa': np.random.uniform(30., 80.),   # Leaf angle distribution (°)
+            'hspot': np.random.uniform(0.01, 0.5),  # Hot spot parameter
+            'tts': tts,                             # Solar zenith angle (°)
+            'tto': tto,                             # Observer zenith angle (°)
+            'psi': psi,                             # Relative azimuth angle (°)
+            'soil_spectrum1': soil_spectrum,        # Soil reflectance spectrum
+            'rsoil': 1.0,                           # Soil brightness
+            'psoil': 0.0                            # Soil moisture
         }
         simulated_reflectance = run_prosail(**params)
         lut_params.append(params)
