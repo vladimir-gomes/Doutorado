@@ -11,7 +11,7 @@ from sklearn.metrics import mean_squared_error
 # vegetation canopy simulation and inversion.
 #
 # Leaf Biochemical Parameters:
-#   'n'       : Leaf structure parameter (refraction index) [1.0-2.5]
+#   'n'       : Leaf structure parameter (unitless) [1.0-2.5]
 #   'cab'     : Chlorophyll a+b content (μg/cm²) [10-80]
 #   'car'     : Carotenoid content (μg/cm²) [5-25]
 #   'cbrown'  : Brown pigment content (arbitrary units) [0.0-1.0]
@@ -46,7 +46,9 @@ def generate_prosail_lut(n_simulations, soil_spectrum,
         psi (float, optional): Relative azimuth angle (degrees). Default: 0.0
         
     Returns:
-        tuple: (DataFrame com parâmetros, array com espectros simulados)
+        tuple: (lut_params_df, lut_spectra)
+            - lut_params_df: DataFrame com os parâmetros de cada simulação
+            - lut_spectra: Array numpy com os espectros simulados (n_simulations, n_wavelengths)
         
     Note:
         Os parâmetros biofísicos são amostrados aleatoriamente dentro de faixas
@@ -64,7 +66,7 @@ def generate_prosail_lut(n_simulations, soil_spectrum,
         # Dictionary mapping PROSAIL parameter names to random values
         # within physically valid ranges for vegetation
         params = {
-            'n': np.random.uniform(1.0, 2.5),       # Leaf structure parameter
+            'n': np.random.uniform(1.0, 2.5),       # Leaf structure (N-structure)
             'cab': np.random.uniform(10., 80.),     # Chlorophyll a+b (μg/cm²)
             'car': np.random.uniform(5., 25.),      # Carotenoids (μg/cm²)
             'cbrown': np.random.uniform(0.0, 1.0),  # Brown pigments
@@ -144,7 +146,7 @@ def get_parameter_descriptions():
         'Leaf Area Index (m²/m²)'
     """
     return {
-        'n': 'Leaf structure parameter (refraction index)',
+        'n': 'Leaf structure parameter (unitless)',
         'cab': 'Chlorophyll a+b content (μg/cm²)',
         'car': 'Carotenoid content (μg/cm²)',
         'cbrown': 'Brown pigment content (arbitrary units)',
@@ -193,9 +195,13 @@ def print_inversion_results(params, rmse=None):
             
         desc = descriptions.get(param_name, param_name)
         
-        # Format output based on parameter type
+        # Format output based on parameter type and value range
         if isinstance(param_value, (int, float)):
-            print(f"  {param_name:12s} = {param_value:8.4f}  ({desc})")
+            # Use scientific notation for very small or very large values
+            if abs(param_value) < 0.001 or abs(param_value) >= 1000:
+                print(f"  {param_name:12s} = {param_value:12.4e}  ({desc})")
+            else:
+                print(f"  {param_name:12s} = {param_value:12.4f}  ({desc})")
         else:
             print(f"  {param_name:12s} = {param_value}  ({desc})")
     

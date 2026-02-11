@@ -22,8 +22,9 @@ def demonstrate_parameter_descriptions():
     # descriptions = get_parameter_descriptions()
     
     # Para este exemplo, definimos localmente para evitar dependências de instalação
+    # AVISO: Esta cópia local deve ser mantida em sincronia com prosail_inversion.py
     descriptions = {
-        'n': 'Leaf structure parameter (refraction index)',
+        'n': 'Leaf structure parameter (unitless)',
         'cab': 'Chlorophyll a+b content (μg/cm²)',
         'car': 'Carotenoid content (μg/cm²)',
         'cbrown': 'Brown pigment content (arbitrary units)',
@@ -80,8 +81,9 @@ def demonstrate_results_printing():
     # print_inversion_results(inverted_params, rmse)
     
     # Para este exemplo, implementamos localmente para demonstração
+    # AVISO: Esta cópia local deve ser mantida em sincronia com prosail_inversion.py
     descriptions = {
-        'n': 'Leaf structure parameter (refraction index)',
+        'n': 'Leaf structure parameter (unitless)',
         'cab': 'Chlorophyll a+b content (μg/cm²)',
         'car': 'Carotenoid content (μg/cm²)',
         'cbrown': 'Brown pigment content (arbitrary units)',
